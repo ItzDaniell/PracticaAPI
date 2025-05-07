@@ -1,23 +1,17 @@
-# Imagen base
-FROM python:3.11-slim
+FROM python:3.10-slim
 
-# Evitar problemas de encoding
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+WORKDIR /src
 
-# Crear directorio de trabajo
-WORKDIR /app
+# Copia solo el contenido de la carpeta src (donde está manage.py) al contenedor
+COPY ./src /src
 
-# Copiar dependencias
 COPY requirements.txt .
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copiar solo la carpeta src al contenedor
-COPY src/ .
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Exponer puerto
 EXPOSE 8000
 
-# Comando de inicio
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
