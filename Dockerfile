@@ -5,18 +5,19 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Crear directorio de la app
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias
+# Copiar dependencias
 COPY requirements.txt .
+
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copiar el proyecto
-COPY . .
+# Copiar solo la carpeta src al contenedor
+COPY src/ .
 
-# Puerto (opcional)
+# Exponer puerto
 EXPOSE 8000
 
-# Comando por defecto (lo puedes sobreescribir en docker-compose)
+# Comando de inicio
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
